@@ -14,9 +14,6 @@ import (
 
 var ctx = context.Background()
 var rdb *redis.Client
-var URLs []Url
-
-// var ErrNil = errors.New("No Matching Records Found")
 
 func main() {
 	var err error
@@ -24,17 +21,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	TEMP_insertUrls()
+	defer rdb.ShutdownSave(ctx)
 	handleRequests()
-}
-
-func TEMP_insertUrls() {
-	URLs = []Url{{"https://google.com/", "goo"}, {"https://github.com/", "gh"}}
-	for _, u := range URLs {
-		if err := rdb.Set(ctx, u.Short, u.Dest, 0).Err(); err != nil {
-			log.Fatal(err)
-		}
-	}
 }
 
 func handleRequests() {
@@ -51,6 +39,14 @@ func handleRequests() {
 // Main Page - also a list of all shortened URLS
 func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the homepage")
+	urls, err := scanUrls()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.NewEncoder(w).Encode(urls)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Homepage index hit by %v\n", r)
 }
 
@@ -119,6 +115,20 @@ func postUrl(u Url) error {
 
 func deleteUrl(s string) error {
 	return rdb.Del(ctx, s).Err()
+}
+
+func scanUrls() ([]Url, error) {
+	var urls []Url
+	iter := rdb.Scan(ctx, 0, "", 0).Iterator()
+	for iter.Next(ctx) {
+		nextUrl, err := getUrl(iter.Val())
+		if err != nil {
+			return nil, err
+		}
+		urls = append(urls, nextUrl)
+	}
+	return urls, nil
+
 }
 
 func NewDBClient(addr string, password string, db int) (*redis.Client, error) {
