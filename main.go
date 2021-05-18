@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -39,18 +40,36 @@ func TEMP_insertUrls() {
 func handleRequests() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", index)
-	router.HandleFunc("/r/{shortUrl}", redirect)
+
+	router.HandleFunc("/c", createUrl).Methods("POST")
+	router.HandleFunc("/r/{shortUrl}", redirect).Methods("GET")
+	router.HandleFunc("/u/{orgUrl}", updateUrl).Methods("PUT")
+	router.HandleFunc("/d/{shortUrl}", deleteUrlRoute).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
+// Main Page - also a list of all shortened URLS
 func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the homepage")
 	log.Printf("Homepage index hit by %v\n", r)
 }
 
+func createUrl(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var newUrl Url
+	err := json.Unmarshal(reqBody, &newUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := postUrl(newUrl); err != nil {
+		log.Fatal(err)
+	}
+
+}
+
 func redirect(w http.ResponseWriter, r *http.Request) {
 	shortUrl := mux.Vars(r)["shortUrl"]
-	url, err := getUrlFromShort(shortUrl)
+	url, err := getUrl(shortUrl)
 	if err != nil {
 		fmt.Fprintf(w, "No matching url for %s", shortUrl)
 	} else {
@@ -58,15 +77,48 @@ func redirect(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func updateUrl(w http.ResponseWriter, r *http.Request) {
+	orgUrl := mux.Vars(r)["orgUrl"]
+	shortUrl := r.URL.Query().Get("shortUrl")
+	destUrl := r.URL.Query().Get("destUrl")
+	newUrl := Url{shortUrl, destUrl}
+	if err := putUrl(orgUrl, newUrl); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func deleteUrlRoute(w http.ResponseWriter, r *http.Request) {
+	shortUrl := mux.Vars(r)["shortUrl"]
+	if err := deleteUrl(shortUrl); err != nil {
+		log.Fatal(err)
+	}
+}
+
 // Returns a given URL with matching `Short` key
 // or an zero value'd URL and an error if the url is not found
-func getUrlFromShort(s string) (Url, error) {
-	for _, url := range URLs {
-		if url.Short == s {
-			return url, nil
+func getUrl(s string) (Url, error) {
+	destUrl, err := rdb.Get(ctx, s).Result()
+	if err != nil {
+		return Url{}, err
+	}
+	return Url{s, destUrl}, nil
+}
+
+func putUrl(org string, u Url) error {
+	if org != u.Short {
+		if err := deleteUrl(org); err != nil {
+			return err
 		}
 	}
-	return Url{}, errors.New("No URL found")
+	return postUrl(u)
+}
+
+func postUrl(u Url) error {
+	return rdb.Set(ctx, u.Short, u.Dest, 0).Err()
+}
+
+func deleteUrl(s string) error {
+	return rdb.Del(ctx, s).Err()
 }
 
 func NewDBClient(addr string, password string, db int) (*redis.Client, error) {
