@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,7 +16,7 @@ func main() {
 func handleRequests() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", index)
-	router.HandleFunc("/r", redirect)
+	router.HandleFunc("/r/{shortUrl}", redirect)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
@@ -27,16 +26,21 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func redirect(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Redirect Page")
-	if err := json.NewEncoder(w).Encode(URLs); err != nil {
-		log.Fatal(err)
-	}
+	shortUrl := mux.Vars(r)["shortUrl"]
 
+	var url Url
+	for _, u := range URLs {
+		if u.Short == shortUrl {
+			url = u
+			break
+		}
+	}
+	fmt.Fprintf(w, "Redirected from %s to %s", url.Short, url.Dest)
 }
 
 type Url struct {
-	Destination string `json:"Destination"`
-	Shortened   string `json:"Shortened"`
+	Dest  string `json:"Dest"`
+	Short string `json:"Short"`
 }
 
 var URLs []Url
