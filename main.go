@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,15 +28,23 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func redirect(w http.ResponseWriter, r *http.Request) {
 	shortUrl := mux.Vars(r)["shortUrl"]
+	url, err := getUrlFromShort(shortUrl)
+	if err != nil {
+		fmt.Fprintf(w, "No matching url for %s", shortUrl)
+	} else {
+		fmt.Fprintf(w, "Redirected from %s to %s", url.Short, url.Dest)
+	}
+}
 
-	var url Url
-	for _, u := range URLs {
-		if u.Short == shortUrl {
-			url = u
-			break
+// Returns a given URL with matching `Short` key
+// or an zero value'd URL and an error if the url is not found
+func getUrlFromShort(s string) (Url, error) {
+	for _, url := range URLs {
+		if url.Short == s {
+			return url, nil
 		}
 	}
-	fmt.Fprintf(w, "Redirected from %s to %s", url.Short, url.Dest)
+	return Url{}, errors.New("No URL found")
 }
 
 type Url struct {
