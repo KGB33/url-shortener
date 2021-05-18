@@ -1,17 +1,39 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 )
 
+var ctx = context.Background()
+var rdb *redis.Client
+var URLs []Url
+
+// var ErrNil = errors.New("No Matching Records Found")
+
 func main() {
-	URLs = []Url{{"https://google.com/", "goo"}, {"https://github.com/", "gh"}}
+	var err error
+	rdb, err = NewDBClient("localhost:6379", "", 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	TEMP_insertUrls()
 	handleRequests()
+}
+
+func TEMP_insertUrls() {
+	URLs = []Url{{"https://google.com/", "goo"}, {"https://github.com/", "gh"}}
+	for _, u := range URLs {
+		if err := rdb.Set(ctx, u.Short, u.Dest, 0).Err(); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 func handleRequests() {
@@ -47,9 +69,20 @@ func getUrlFromShort(s string) (Url, error) {
 	return Url{}, errors.New("No URL found")
 }
 
+func NewDBClient(addr string, password string, db int) (*redis.Client, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: password,
+		DB:       db,
+	})
+	if err := client.Ping(ctx).Err(); err != nil {
+		return nil, err
+	}
+	return client, nil
+
+}
+
 type Url struct {
 	Dest  string `json:"Dest"`
 	Short string `json:"Short"`
 }
-
-var URLs []Url
