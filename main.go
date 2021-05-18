@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	URLs = []Url{{"google.com", "goo"}, {"Github.com", "gh"}}
+	URLs = []Url{{"https://google.com/", "goo"}, {"https://github.com/", "gh"}}
 	handleRequests()
 }
 
@@ -32,7 +32,7 @@ func redirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintf(w, "No matching url for %s", shortUrl)
 	} else {
-		fmt.Fprintf(w, "Redirected from %s to %s", url.Short, url.Dest)
+		http.Redirect(w, r, url.Dest, 302)
 	}
 }
 
