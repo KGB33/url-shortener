@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -13,9 +15,10 @@ func main() {
 }
 
 func handleRequests() {
-	http.HandleFunc("/", index)
-	http.HandleFunc("/r", redirect)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	router := mux.NewRouter()
+	router.HandleFunc("/", index)
+	router.HandleFunc("/r", redirect)
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
