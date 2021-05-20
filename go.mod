@@ -1,4 +1,4 @@
-module github.com/KGB33/url-shortener
+module url-shortener
 
 go 1.16
 
