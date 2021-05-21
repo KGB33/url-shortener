@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"log"
+	"net/http"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -17,7 +18,7 @@ type Server struct {
 
 func (s *Server) Run(port string) {
 	defer s.DB.ShutdownSave(ctx)
-	s.routes(port)
+	log.Fatal(http.ListenAndServe(port, s.Router))
 }
 
 func NewServer(db_addr string, db_pass string, db_id int) Server {
@@ -26,6 +27,7 @@ func NewServer(db_addr string, db_pass string, db_id int) Server {
 	if err != nil {
 		log.Fatal(err)
 	}
+	env.initRoutes()
 	return env
 }
 

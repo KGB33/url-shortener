@@ -10,14 +10,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *Server) routes(port string) {
+func (s *Server) initRoutes() {
 	s.Router.HandleFunc("/", s.handleIndex())
 
 	s.Router.HandleFunc("/c", s.handleCreateUrl()).Methods("POST")
 	s.Router.HandleFunc("/r/{shortUrl}", s.handleRedirect()).Methods("GET")
 	s.Router.HandleFunc("/u/{orgUrl}", s.handleUpdateUrl()).Methods("PUT")
 	s.Router.HandleFunc("/d/{shortUrl}", s.handledeleteUrl()).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(port, s.Router))
 }
 
 // Main Page - a list of all shortened URLS
