@@ -24,12 +24,10 @@ func (s *Server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		urls, err := scanUrls(s)
 		if err != nil {
-			log.Fatal(err)
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+			return
 		}
-		err = json.NewEncoder(w).Encode(urls)
-		if err != nil {
-			log.Fatal(err)
-		}
+		respondWithJson(w, http.StatusOK, urls)
 	}
 }
 

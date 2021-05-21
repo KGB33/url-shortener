@@ -25,6 +25,23 @@ func TestEmptyDB_Index(t *testing.T) {
 	}
 }
 
+func TestPopulatedDB_Index(t *testing.T) {
+	clearDB()
+	popDB()
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	body := response.Body.String()
+	expected := `[{"ShortUrl":"goJson","DestUrl":"https://blog.golang.org/json"},{"ShortUrl":"burrito","DestUrl":"https://www.chipotle.com/"},{"ShortUrl":"gh","DestUrl":"https://github.com/"}]`
+	body = strings.TrimSpace(body)
+	if body != expected {
+		t.Errorf("Expected %s, got: %s\n", expected, body)
+	}
+}
+
 func TestCreateUrl(t *testing.T) {
 	jsonStr := []byte(`{"ShortUrl":"short", "DestUrl":"dest"}`)
 	req, _ := http.NewRequest("POST", "/c", bytes.NewBuffer(jsonStr))
