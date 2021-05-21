@@ -39,12 +39,18 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 		var newUrl Url
 		err := json.Unmarshal(reqBody, &newUrl)
 		if err != nil {
-			log.Fatal(err)
+			respondWithError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if newUrl.Short == "" || newUrl.Dest == "" {
+			respondWithError(w, http.StatusBadRequest, "Missing some Url fields")
+			return
 		}
 		if err := postUrl(newUrl, s); err != nil {
-			log.Fatal(err)
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+			return
 		}
-		w.WriteHeader(http.StatusCreated)
+		respondWithJson(w, http.StatusCreated, newUrl)
 	}
 }
 
@@ -84,4 +90,17 @@ func (s *Server) handledeleteUrl() http.HandlerFunc {
 			log.Fatal(err)
 		}
 	}
+}
+
+func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
+	response, _ := json.Marshal(payload)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
+}
+
+// Packs an error message into a json Object.
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJson(w, code, map[string]string{"Error": message})
 }

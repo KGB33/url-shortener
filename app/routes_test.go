@@ -2,7 +2,6 @@ package app
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -19,7 +18,6 @@ func TestEmptyDB_Index(t *testing.T) {
 
 	checkResponseCode(t, http.StatusOK, response.Code)
 
-	fmt.Println(response.Header())
 	body := response.Body.String()
 	body = strings.TrimSpace(body)
 	if body != "null" {
@@ -44,4 +42,21 @@ func TestCreateUrl(t *testing.T) {
 		t.Errorf("Url inserted into DB does not match expected\n\tExpected: %v\n\tGot: %v", expectedUrl, u)
 	}
 
+}
+
+// When malformed Json data is posted to the
+// `/c/` endpoint, ensure that the server responds
+// with a 400 bad request status code.
+func TestCreateUrlMalformedRequest(t *testing.T) {
+	badJson := bytes.NewBuffer([]byte(`{"Im Bad": "Json", "This isn't right": "at all"}`))
+	req, _ := http.NewRequest("POST", "/c", badJson)
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeRequest(req)
+	checkResponseCode(t, http.StatusBadRequest, response.Code)
+
+	expected := `{"Error":"Missing some Url fields"}`
+	if body := response.Body.String(); body != expected {
+		t.Errorf("Server response does not match expected.\n\tGot: %s\n\tExpected: %s", body, expected)
+	}
 }
