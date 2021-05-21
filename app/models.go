@@ -15,10 +15,15 @@ func getUrl(short string, s *Server) (Url, error) {
 	return Url{short, dest}, nil
 }
 
-// postUrl updates or creates the url entry in
+// createUrl creates the url entry in
 // the database
-func postUrl(u Url, s *Server) error {
-	return s.DB.Set(ctx, u.Short, u.Dest, 0).Err()
+func createUrl(u Url, s *Server) (bool, error) {
+	return s.DB.SetNX(ctx, u.Short, u.Dest, 0).Result()
+}
+
+// updateUrl updates the url entry in database
+func updateUrl(u Url, s *Server) error {
+	return s.DB.SetXX(ctx, u.Short, u.Dest, 0).Err()
 }
 
 // deleteUrl deletes the url in the database

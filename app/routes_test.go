@@ -43,6 +43,7 @@ func TestPopulatedDB_Index(t *testing.T) {
 }
 
 func TestCreateUrl(t *testing.T) {
+	clearDB()
 	jsonStr := []byte(`{"ShortUrl":"short", "DestUrl":"dest"}`)
 	req, _ := http.NewRequest("POST", "/c", bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
@@ -64,7 +65,8 @@ func TestCreateUrl(t *testing.T) {
 // When malformed Json data is posted to the
 // `/c/` endpoint, ensure that the server responds
 // with a 400 bad request status code.
-func TestCreateUrlMalformedRequest(t *testing.T) {
+func TestCreateUrl_MalformedRequest(t *testing.T) {
+	clearDB()
 	badJson := bytes.NewBuffer([]byte(`{"Im Bad": "Json", "This isn't right": "at all"}`))
 	req, _ := http.NewRequest("POST", "/c", badJson)
 	req.Header.Set("Content-Type", "application/json")
@@ -75,5 +77,22 @@ func TestCreateUrlMalformedRequest(t *testing.T) {
 	expected := `{"Error":"Missing some Url fields"}`
 	if body := response.Body.String(); body != expected {
 		t.Errorf("Server response does not match expected.\n\tGot: %s\n\tExpected: %s", body, expected)
+	}
+}
+
+func TestCreateUrl_DuplicateShort(t *testing.T) {
+	clearDB()
+	popDB()
+
+	js := bytes.NewBuffer([]byte(`{"ShortUrl":"goJson", "DestUrl":"https://blog.golang.org/json"}`))
+	req, _ := http.NewRequest("POST", "/c", js)
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeRequest(req)
+	checkResponseCode(t, http.StatusConflict, response.Code)
+
+	expected := `{"Error":"'goJson' is a duplicate URL"}`
+	if body := response.Body.String(); body != expected {
+		t.Errorf("Response does not match expected.\n\tGot: %s\n\tExpected: %s", body, expected)
 	}
 }

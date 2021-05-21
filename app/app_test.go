@@ -30,7 +30,7 @@ func popDB() {
 		{"burrito", "https://www.chipotle.com/"},
 	}
 	for _, u := range urls {
-		postUrl(u, &s)
+		createUrl(u, &s)
 	}
 }
 
