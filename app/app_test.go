@@ -23,6 +23,17 @@ func clearDB() {
 	}
 }
 
+func popDB() {
+	urls := []Url{
+		{"goJson", "https://blog.golang.org/json"},
+		{"gh", "https://github.com/"},
+		{"burrito", "https://www.chipotle.com/"},
+	}
+	for _, u := range urls {
+		postUrl(u, &s)
+	}
+}
+
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 	rr := httptest.NewRecorder()
 	s.Router.ServeHTTP(rr, req)
