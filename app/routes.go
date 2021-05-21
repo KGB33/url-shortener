@@ -20,10 +20,9 @@ func (s *server) routes(port string) {
 	log.Fatal(http.ListenAndServe(port, s.router))
 }
 
-// Main Page - also a list of all shortened URLS
+// Main Page - a list of all shortened URLS
 func (s *server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Welcome to the homepage")
 		urls, err := scanUrls(s)
 		if err != nil {
 			log.Fatal(err)
@@ -32,7 +31,6 @@ func (s *server) handleIndex() http.HandlerFunc {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("Homepage index hit by %v\n", r)
 	}
 }
 
