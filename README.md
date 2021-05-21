@@ -1,4 +1,6 @@
 # TODOs:
+  - Go Tests
+  - Base64 Short URL
   - javascript front end
   - Config file
   - Docker compose for Go/Redis/JS
