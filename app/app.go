@@ -10,19 +10,19 @@ import (
 
 var ctx = context.Background()
 
-type server struct {
-	db     *redis.Client
-	router *mux.Router
+type Server struct {
+	DB     *redis.Client
+	Router *mux.Router
 }
 
-func (s *server) Run(port string) {
-	defer s.db.ShutdownSave(ctx)
+func (s *Server) Run(port string) {
+	defer s.DB.ShutdownSave(ctx)
 	s.routes(port)
 }
 
-func NewServer(db_addr string, db_pass string, db_id int) server {
+func NewServer(db_addr string, db_pass string, db_id int) Server {
 	rdb, err := NewDBClient(db_addr, db_pass, db_id)
-	env := server{rdb, mux.NewRouter()}
+	env := Server{rdb, mux.NewRouter()}
 	if err != nil {
 		log.Fatal(err)
 	}

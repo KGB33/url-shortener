@@ -10,18 +10,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (s *server) routes(port string) {
-	s.router.HandleFunc("/", s.handleIndex())
+func (s *Server) routes(port string) {
+	s.Router.HandleFunc("/", s.handleIndex())
 
-	s.router.HandleFunc("/c", s.handleCreateUrl()).Methods("POST")
-	s.router.HandleFunc("/r/{shortUrl}", s.handleRedirect()).Methods("GET")
-	s.router.HandleFunc("/u/{orgUrl}", s.handleUpdateUrl()).Methods("PUT")
-	s.router.HandleFunc("/d/{shortUrl}", s.handledeleteUrl()).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(port, s.router))
+	s.Router.HandleFunc("/c", s.handleCreateUrl()).Methods("POST")
+	s.Router.HandleFunc("/r/{shortUrl}", s.handleRedirect()).Methods("GET")
+	s.Router.HandleFunc("/u/{orgUrl}", s.handleUpdateUrl()).Methods("PUT")
+	s.Router.HandleFunc("/d/{shortUrl}", s.handledeleteUrl()).Methods("DELETE")
+	log.Fatal(http.ListenAndServe(port, s.Router))
 }
 
 // Main Page - a list of all shortened URLS
-func (s *server) handleIndex() http.HandlerFunc {
+func (s *Server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		urls, err := scanUrls(s)
 		if err != nil {
@@ -34,7 +34,7 @@ func (s *server) handleIndex() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleCreateUrl() http.HandlerFunc {
+func (s *Server) handleCreateUrl() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqBody, _ := ioutil.ReadAll(r.Body)
 		var newUrl Url
@@ -49,7 +49,7 @@ func (s *server) handleCreateUrl() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleRedirect() http.HandlerFunc {
+func (s *Server) handleRedirect() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		shortUrl := mux.Vars(r)["shortUrl"]
 		url, err := getUrl(shortUrl, s)
@@ -61,7 +61,7 @@ func (s *server) handleRedirect() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleUpdateUrl() http.HandlerFunc {
+func (s *Server) handleUpdateUrl() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		orgUrl := mux.Vars(r)["orgUrl"]
 		shortUrl := r.URL.Query().Get("shortUrl")
@@ -78,7 +78,7 @@ func (s *server) handleUpdateUrl() http.HandlerFunc {
 	}
 }
 
-func (s *server) handledeleteUrl() http.HandlerFunc {
+func (s *Server) handledeleteUrl() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		shortUrl := mux.Vars(r)["shortUrl"]
 		if err := deleteUrl(shortUrl, s); err != nil {
