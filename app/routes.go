@@ -7,28 +7,17 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 )
 
-type server struct {
-	db     *redis.Client
-	router *mux.Router
-}
-
-func (s *server) run() {
-	defer s.db.ShutdownSave(ctx)
-	s.routes()
-}
-
-func (s *server) routes() {
+func (s *server) routes(port string) {
 	s.router.HandleFunc("/", s.handleIndex())
 
 	s.router.HandleFunc("/c", s.handleCreateUrl()).Methods("POST")
 	s.router.HandleFunc("/r/{shortUrl}", s.handleRedirect()).Methods("GET")
 	s.router.HandleFunc("/u/{orgUrl}", s.handleUpdateUrl()).Methods("PUT")
 	s.router.HandleFunc("/d/{shortUrl}", s.handledeleteUrl()).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(":8080", s.router))
+	log.Fatal(http.ListenAndServe(port, s.router))
 }
 
 // Main Page - also a list of all shortened URLS

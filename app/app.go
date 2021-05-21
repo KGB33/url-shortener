@@ -10,13 +10,23 @@ import (
 
 var ctx = context.Background()
 
-func Entrypoint() {
-	rdb, err := NewDBClient("localhost:6379", "", 0)
+type server struct {
+	db     *redis.Client
+	router *mux.Router
+}
+
+func (s *server) Run(port string) {
+	defer s.db.ShutdownSave(ctx)
+	s.routes(port)
+}
+
+func NewServer(db_addr string, db_pass string, db_id int) server {
+	rdb, err := NewDBClient(db_addr, db_pass, db_id)
 	env := server{rdb, mux.NewRouter()}
 	if err != nil {
 		log.Fatal(err)
 	}
-	env.run()
+	return env
 }
 
 func NewDBClient(addr string, password string, db int) (*redis.Client, error) {

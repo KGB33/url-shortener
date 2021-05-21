@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	app.Entrypoint()
+	app := app.NewServer("localhost:6796", "", 0)
+	app.Run(":8080")
 }
