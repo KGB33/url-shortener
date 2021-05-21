@@ -44,7 +44,7 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 		if err := postUrl(newUrl, s); err != nil {
 			log.Fatal(err)
 		}
-
+		w.WriteHeader(http.StatusCreated)
 	}
 }
 
