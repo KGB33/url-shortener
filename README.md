@@ -5,6 +5,17 @@
   - Config file
   - Docker compose for Go/Redis/JS
 
+# Testing
+```
+go test ./app/
+```
+
+For coverage:
+```
+go test ./app/ -coverprofile=coverage.out
+go tool cover -html=coverage.out
+```
+
 # Resources
 [Creating A Simple Web Server With Golang](https://tutorialedge.net/golang/creating-simple-web-server-with-golang/)
 
