@@ -35,10 +35,16 @@ func TestPopulatedDB_Index(t *testing.T) {
 	checkResponseCode(t, http.StatusOK, response.Code)
 
 	body := response.Body.String()
-	expected := `[{"ShortUrl":"goJson","DestUrl":"https://blog.golang.org/json"},{"ShortUrl":"burrito","DestUrl":"https://www.chipotle.com/"},{"ShortUrl":"gh","DestUrl":"https://github.com/"}]`
+	expected := []string{
+		`{"ShortUrl":"goJson","DestUrl":"https://blog.golang.org/json"}`,
+		`{"ShortUrl":"burrito","DestUrl":"https://www.chipotle.com/"}`,
+		`{"ShortUrl":"gh","DestUrl":"https://github.com/"}`,
+	}
 	body = strings.TrimSpace(body)
-	if body != expected {
-		t.Errorf("Expected %s, got: %s\n", expected, body)
+	for _, s := range expected {
+		if !strings.Contains(body, s) {
+			t.Errorf("Expected %s in response, got: %s\n", s, body)
+		}
 	}
 }
 
