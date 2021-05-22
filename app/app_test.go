@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var s Server
+var s *Server
 
 func TestMain(m *testing.M) {
 	s = NewServer("localhost:6379", "", 1)
@@ -30,7 +30,7 @@ func popDB() {
 		{"burrito", "https://www.chipotle.com/"},
 	}
 	for _, u := range urls {
-		createUrl(u, &s)
+		u.Create(s)
 	}
 }
 

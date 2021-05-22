@@ -1,35 +1,43 @@
 package app
 
+import "errors"
+
 type Url struct {
 	Short string `json:"ShortUrl"` // "PrimaryKey"
 	Dest  string `json:"DestUrl"`
 }
 
-// getUrl retrieves the url entry
+// Get retrieves the url entry
 // biased on the url.short entry.
-func getUrl(short string, s *Server) (Url, error) {
+func (u *Url) Get(short string, s *Server) error {
 	dest, err := s.DB.Get(ctx, short).Result()
 	if err != nil {
-		return Url{}, err
+		return err
 	}
-	return Url{short, dest}, nil
+	u.Short = short
+	u.Dest = dest
+	return nil
 }
 
-// createUrl creates the url entry in
+// Create creates the url entry in
 // the database
-func createUrl(u Url, s *Server) (bool, error) {
-	return s.DB.SetNX(ctx, u.Short, u.Dest, 0).Result()
+func (u *Url) Create(s *Server) error {
+	success, err := s.DB.SetNX(ctx, u.Short, u.Dest, 0).Result()
+	if !success {
+		return errors.New("Unable to insert the URL into the database. This is likely due to a duplicate ShortUrl.")
+	}
+	return err
 }
 
-// updateUrl updates the url entry in database
-func updateUrl(u Url, s *Server) error {
+// Update updates the url entry in database
+func (u *Url) Update(s *Server) error {
 	return s.DB.SetXX(ctx, u.Short, u.Dest, 0).Err()
 }
 
-// deleteUrl deletes the url in the database
+// Delete deletes the url in the database
 // with the matching url.short
-func deleteUrl(short string, s *Server) error {
-	return s.DB.Del(ctx, short).Err()
+func (u *Url) Delete(s *Server) error {
+	return s.DB.Del(ctx, u.Short).Err()
 }
 
 // scanUrls returns all urls in the database
@@ -37,7 +45,8 @@ func scanUrls(s *Server) ([]Url, error) {
 	iter := s.DB.Scan(ctx, 0, "", 0).Iterator()
 	var urls []Url
 	for iter.Next(ctx) {
-		nextUrl, err := getUrl(iter.Val(), s)
+		nextUrl := Url{}
+		err := nextUrl.Get(iter.Val(), s)
 		if err != nil {
 			return urls, err
 		}

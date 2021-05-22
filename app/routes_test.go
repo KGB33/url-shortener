@@ -10,7 +10,7 @@ import (
 // When `/` is requested, it should return a list of
 // all the entries in the DB, if the DB is
 // empty, then an empty list should be returned.
-func TestEmptyDB_Index(t *testing.T) {
+func TestIndex_EmptyDB(t *testing.T) {
 	clearDB()
 
 	req, _ := http.NewRequest("GET", "/", nil)
@@ -25,7 +25,7 @@ func TestEmptyDB_Index(t *testing.T) {
 	}
 }
 
-func TestPopulatedDB_Index(t *testing.T) {
+func TestIndex_PopulatedDB(t *testing.T) {
 	clearDB()
 	popDB()
 
@@ -48,7 +48,7 @@ func TestPopulatedDB_Index(t *testing.T) {
 	}
 }
 
-func TestCreateUrl(t *testing.T) {
+func TestEndpoint_CreateUrl(t *testing.T) {
 	clearDB()
 	jsonStr := []byte(`{"ShortUrl":"short", "DestUrl":"dest"}`)
 	req, _ := http.NewRequest("POST", "/c", bytes.NewBuffer(jsonStr))
@@ -57,7 +57,8 @@ func TestCreateUrl(t *testing.T) {
 	response := executeRequest(req)
 	checkResponseCode(t, http.StatusCreated, response.Code)
 
-	u, err := getUrl("short", &s)
+	u := Url{}
+	err := u.Get("short", s)
 	if err != nil {
 		t.Errorf("Failed to retreave new URL from database: %s\n", err)
 	}
@@ -71,7 +72,7 @@ func TestCreateUrl(t *testing.T) {
 // When malformed Json data is posted to the
 // `/c/` endpoint, ensure that the server responds
 // with a 400 bad request status code.
-func TestCreateUrl_MalformedRequest(t *testing.T) {
+func TestEndpoint_CreateUrl_MalformedRequest(t *testing.T) {
 	clearDB()
 	badJson := bytes.NewBuffer([]byte(`{"Im Bad": "Json", "This isn't right": "at all"}`))
 	req, _ := http.NewRequest("POST", "/c", badJson)
@@ -86,7 +87,7 @@ func TestCreateUrl_MalformedRequest(t *testing.T) {
 	}
 }
 
-func TestCreateUrl_DuplicateShort(t *testing.T) {
+func TestEndpoint_CreateUrl_DuplicateShort(t *testing.T) {
 	clearDB()
 	popDB()
 
@@ -95,9 +96,9 @@ func TestCreateUrl_DuplicateShort(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	response := executeRequest(req)
-	checkResponseCode(t, http.StatusConflict, response.Code)
+	checkResponseCode(t, http.StatusInternalServerError, response.Code)
 
-	expected := `{"Error":"'goJson' is a duplicate URL"}`
+	expected := `{"Error":"Unable to insert the URL into the database. This is likely due to a duplicate ShortUrl."}`
 	if body := response.Body.String(); body != expected {
 		t.Errorf("Response does not match expected.\n\tGot: %s\n\tExpected: %s", body, expected)
 	}

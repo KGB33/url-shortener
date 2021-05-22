@@ -44,13 +44,9 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 			respondWithError(w, http.StatusBadRequest, "Missing some Url fields")
 			return
 		}
-		isSet, err := createUrl(newUrl, s)
+		err = newUrl.Create(s)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		if !isSet {
-			respondWithError(w, http.StatusConflict, fmt.Sprintf("'%s' is a duplicate URL", newUrl.Short))
 			return
 		}
 		respondWithJson(w, http.StatusCreated, newUrl)
@@ -60,7 +56,8 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 func (s *Server) handleRedirect() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		shortUrl := mux.Vars(r)["shortUrl"]
-		url, err := getUrl(shortUrl, s)
+		var url Url
+		err := url.Get(shortUrl, s)
 		if err != nil {
 			fmt.Fprintf(w, "No matching url for %s", shortUrl)
 		} else {
@@ -74,7 +71,7 @@ func (s *Server) handleUpdateUrl() http.HandlerFunc {
 		orgUrl := mux.Vars(r)["orgUrl"]
 		destUrl := r.URL.Query().Get("destUrl")
 		newUrl := Url{orgUrl, destUrl}
-		if err := updateUrl(newUrl, s); err != nil {
+		if err := newUrl.Update(s); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -83,7 +80,8 @@ func (s *Server) handleUpdateUrl() http.HandlerFunc {
 func (s *Server) handledeleteUrl() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		shortUrl := mux.Vars(r)["shortUrl"]
-		if err := deleteUrl(shortUrl, s); err != nil {
+		url := Url{shortUrl, ""}
+		if err := url.Delete(s); err != nil {
 			log.Fatal(err)
 		}
 	}

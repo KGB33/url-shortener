@@ -21,14 +21,14 @@ func (s *Server) Run(port string) {
 	log.Fatal(http.ListenAndServe(port, s.Router))
 }
 
-func NewServer(db_addr string, db_pass string, db_id int) Server {
+func NewServer(db_addr string, db_pass string, db_id int) *Server {
 	rdb, err := NewDBClient(db_addr, db_pass, db_id)
 	env := Server{rdb, mux.NewRouter()}
 	if err != nil {
 		log.Fatal(err)
 	}
 	env.initRoutes()
-	return env
+	return &env
 }
 
 func NewDBClient(addr string, password string, db int) (*redis.Client, error) {
