@@ -1,6 +1,10 @@
 package app
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/matryer/is"
+)
 
 func TestUrl_Get(t *testing.T) {
 	clearDB()
@@ -61,25 +65,73 @@ func TestUrl_Create_DuplicateKey(t *testing.T) {
 }
 
 func TestUrl_Update(t *testing.T) {
-	t.Errorf("not Implemented")
+	clearDB()
+	popDB()
+
+	url := Url{"gh", "https://New.Github.com/"}
+
+	if err := url.Update(s); err != nil {
+		t.Errorf("Failed to update URL - %s", err)
+	}
 }
 
 func TestUrl_Update_InvalidKey(t *testing.T) {
-	t.Errorf("not Implemented")
+	clearDB()
+	popDB()
+
+	url := Url{"Not a Key", "this is all fake"}
+	err := url.Update(s)
+	if err == nil {
+		t.Error("Expected an error when updating a non-existant URL")
+	}
 }
 
 func TestUrl_Delete(t *testing.T) {
-	t.Errorf("not Implemented")
+	clearDB()
+	popDB()
+
+	var u Url
+	if err := u.Get("gh", s); err != nil {
+		t.Errorf("Unable to get URL...")
+	}
+
+	if err := u.Delete(s); err != nil {
+		t.Errorf("Error when deleting URL: %s", err)
+	}
+
+	if err := u.Get("gh", s); err == nil {
+		t.Error("Url was not deleted")
+	}
+
 }
 
 func TestUrl_Delete_InvalidKey(t *testing.T) {
-	t.Errorf("not Implemented")
+	clearDB()
+	popDB()
+
+	u := Url{"Not A Key", "Fake Val too"}
+
+	if err := u.Delete(s); err == nil {
+		t.Errorf("Expected an error when deleting a non-existant key")
+	}
 }
 
 func TestScanUrl_PopulatedDB(t *testing.T) {
-	t.Errorf("Not Implemented")
+	clearDB()
+	popDB()
+	is := is.New(t)
+
+	u, err := scanUrls(s)
+	is.NoErr(err)
+	is.Equal(u, urls)
 }
 
 func TestScanUrl_EmptyDB(t *testing.T) {
-	t.Errorf("Not Implemented")
+	clearDB()
+
+	expected := []Url{}
+	is := is.New(t)
+	u, err := scanUrls(s)
+	is.NoErr(err)
+	is.Equal(u, expected)
 }

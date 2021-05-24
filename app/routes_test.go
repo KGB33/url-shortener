@@ -19,8 +19,7 @@ func TestIndex_EmptyDB(t *testing.T) {
 	checkResponseCode(t, http.StatusOK, response.Code)
 
 	body := response.Body.String()
-	body = strings.TrimSpace(body)
-	if body != "null" {
+	if body != "[]" {
 		t.Errorf("Expected null, got: %s\n", body)
 	}
 }

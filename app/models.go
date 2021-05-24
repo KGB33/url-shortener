@@ -31,19 +31,27 @@ func (u *Url) Create(s *Server) error {
 
 // Update updates the url entry in database
 func (u *Url) Update(s *Server) error {
-	return s.DB.SetXX(ctx, u.Short, u.Dest, 0).Err()
+	success, err := s.DB.SetXX(ctx, u.Short, u.Dest, 0).Result()
+	if !success {
+		return errors.New("Unable to update the URL.")
+	}
+	return err
 }
 
 // Delete deletes the url in the database
 // with the matching url.short
 func (u *Url) Delete(s *Server) error {
-	return s.DB.Del(ctx, u.Short).Err()
+	numRemoved, err := s.DB.Del(ctx, u.Short).Result()
+	if numRemoved == 0 {
+		return errors.New("Unable to delete the URL")
+	}
+	return err
 }
 
 // scanUrls returns all urls in the database
 func scanUrls(s *Server) ([]Url, error) {
 	iter := s.DB.Scan(ctx, 0, "", 0).Iterator()
-	var urls []Url
+	urls := []Url{}
 	for iter.Next(ctx) {
 		nextUrl := Url{}
 		err := nextUrl.Get(iter.Val(), s)
