@@ -1,5 +1,5 @@
 # TODOs:
-  - ~Go Tests~
+  - ~Go Tests~ (Re-write with is as needed)
   - Base64 Short URL
   - javascript front end
   - Config file
