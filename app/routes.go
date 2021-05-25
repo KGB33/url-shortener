@@ -40,9 +40,12 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 			respondWithError(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		if newUrl.Short == "" || newUrl.Dest == "" {
-			respondWithError(w, http.StatusBadRequest, "Missing some Url fields")
+		if newUrl.Dest == "" {
+			respondWithError(w, http.StatusBadRequest, "Missing the Url destination field")
 			return
+		}
+		if newUrl.Short == "" {
+			newUrl.generateShort(s)
 		}
 		err = newUrl.Create(s)
 		if err != nil {

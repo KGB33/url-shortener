@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/matryer/is"
 )
 
 // When `/` is requested, it should return a list of
@@ -80,10 +82,26 @@ func TestEndpoint_CreateUrl_MalformedRequest(t *testing.T) {
 	response := executeRequest(req)
 	checkResponseCode(t, http.StatusBadRequest, response.Code)
 
-	expected := `{"Error":"Missing some Url fields"}`
+	expected := `{"Error":"Missing the Url destination field"}`
 	if body := response.Body.String(); body != expected {
 		t.Errorf("Server response does not match expected.\n\tGot: %s\n\tExpected: %s", body, expected)
 	}
+}
+
+func TestEndpoint_CreateUrl_MissingShortKey(t *testing.T) {
+	clearDB()
+
+	is := is.New(t)
+
+	data := bytes.NewBuffer([]byte(`{"DestUrl":"https://https://redis.io/commands/EXISTS"}`))
+	req, _ := http.NewRequest("POST", "/c", data)
+	req.Header.Set("Content-Type", "application/json")
+
+	response := executeRequest(req)
+	is.Equal(http.StatusCreated, response.Code)
+	// The shortURL is random, but it seems like when running tests it always uses the same seed
+	expected := `{"ShortUrl":"ejLqV3Wkyd6","DestUrl":"https://https://redis.io/commands/EXISTS"}`
+	is.Equal(expected, response.Body.String())
 }
 
 func TestEndpoint_CreateUrl_DuplicateShort(t *testing.T) {
