@@ -1,6 +1,8 @@
 package app
 
-import "errors"
+import (
+	"errors"
+)
 
 type Url struct {
 	Short string `json:"ShortUrl"` // "PrimaryKey"
