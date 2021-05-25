@@ -2,6 +2,9 @@ package app
 
 import (
 	"errors"
+	"math/rand"
+	"sort"
+	"url-shortener/app/base62"
 )
 
 type Url struct {
@@ -50,6 +53,19 @@ func (u *Url) Delete(s *Server) error {
 	return err
 }
 
+func (u *Url) generateShort(s *Server) {
+	var id string
+	for used := true; used; used = isUsed(id, s) {
+		id = base62.Encode(rand.Uint64())
+	}
+	u.Short = id
+
+}
+
+func isUsed(key string, s *Server) bool {
+	return 0 != s.DB.Exists(ctx, key).Val()
+}
+
 // scanUrls returns all urls in the database
 func scanUrls(s *Server) ([]Url, error) {
 	iter := s.DB.Scan(ctx, 0, "", 0).Iterator()
@@ -62,5 +78,6 @@ func scanUrls(s *Server) ([]Url, error) {
 		}
 		urls = append(urls, nextUrl)
 	}
+	sort.Slice(urls, func(i, j int) bool { return urls[i].Short < urls[j].Short })
 	return urls, iter.Err()
 }
