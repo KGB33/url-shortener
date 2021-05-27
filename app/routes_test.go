@@ -51,23 +51,19 @@ func TestIndex_PopulatedDB(t *testing.T) {
 
 func TestEndpoint_CreateUrl(t *testing.T) {
 	clearDB()
+	is := is.New(t)
 	jsonStr := []byte(`{"ShortUrl":"short", "DestUrl":"dest"}`)
-	req, _ := http.NewRequest("POST", "/c", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", apiVer+"/c", bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
 	response := executeRequest(req)
-	checkResponseCode(t, http.StatusCreated, response.Code)
+	is.Equal(http.StatusCreated, response.Code)
 
 	u := Url{}
 	err := u.Get("short", s)
-	if err != nil {
-		t.Errorf("Failed to retreave new URL from database: %s\n", err)
-	}
+	is.NoErr(err)
 	expectedUrl := Url{"short", "dest"}
-	if u != expectedUrl {
-		t.Errorf("Url inserted into DB does not match expected\n\tExpected: %v\n\tGot: %v", expectedUrl, u)
-	}
-
+	is.Equal(expectedUrl, u) // Url inserted into DB does not match.
 }
 
 // When malformed Json data is posted to the
@@ -75,17 +71,17 @@ func TestEndpoint_CreateUrl(t *testing.T) {
 // with a 400 bad request status code.
 func TestEndpoint_CreateUrl_MalformedRequest(t *testing.T) {
 	clearDB()
+	is := is.New(t)
 	badJson := bytes.NewBuffer([]byte(`{"Im Bad": "Json", "This isn't right": "at all"}`))
-	req, _ := http.NewRequest("POST", "/c", badJson)
+	req, _ := http.NewRequest("POST", apiVer+"/c", badJson)
 	req.Header.Set("Content-Type", "application/json")
 
 	response := executeRequest(req)
-	checkResponseCode(t, http.StatusBadRequest, response.Code)
+	is.Equal(http.StatusBadRequest, response.Code)
 
 	expected := `{"Error":"Missing the Url destination field"}`
-	if body := response.Body.String(); body != expected {
-		t.Errorf("Server response does not match expected.\n\tGot: %s\n\tExpected: %s", body, expected)
-	}
+	body := response.Body.String()
+	is.Equal(expected, body)
 }
 
 func TestEndpoint_CreateUrl_MissingShortKey(t *testing.T) {
@@ -94,7 +90,7 @@ func TestEndpoint_CreateUrl_MissingShortKey(t *testing.T) {
 	is := is.New(t)
 
 	data := bytes.NewBuffer([]byte(`{"DestUrl":"https://https://redis.io/commands/EXISTS"}`))
-	req, _ := http.NewRequest("POST", "/c", data)
+	req, _ := http.NewRequest("POST", apiVer+"/c", data)
 	req.Header.Set("Content-Type", "application/json")
 
 	response := executeRequest(req)
@@ -107,16 +103,16 @@ func TestEndpoint_CreateUrl_MissingShortKey(t *testing.T) {
 func TestEndpoint_CreateUrl_DuplicateShort(t *testing.T) {
 	clearDB()
 	popDB()
+	is := is.New(t)
 
 	js := bytes.NewBuffer([]byte(`{"ShortUrl":"goJson", "DestUrl":"https://blog.golang.org/json"}`))
-	req, _ := http.NewRequest("POST", "/c", js)
+	req, _ := http.NewRequest("POST", apiVer+"/c", js)
 	req.Header.Set("Content-Type", "application/json")
 
 	response := executeRequest(req)
-	checkResponseCode(t, http.StatusInternalServerError, response.Code)
+	is.Equal(http.StatusInternalServerError, response.Code)
 
 	expected := `{"Error":"Unable to insert the URL into the database. This is likely due to a duplicate ShortUrl."}`
-	if body := response.Body.String(); body != expected {
-		t.Errorf("Response does not match expected.\n\tGot: %s\n\tExpected: %s", body, expected)
-	}
+	body := response.Body.String()
+	is.Equal(expected, body)
 }

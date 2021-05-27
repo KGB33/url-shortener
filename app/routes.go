@@ -10,13 +10,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const apiVer = "/api/v1"
+
 func (s *Server) initRoutes() {
 	s.Router.HandleFunc("/", s.handleIndex())
-
-	s.Router.HandleFunc("/c", s.handleCreateUrl()).Methods("POST")
 	s.Router.HandleFunc("/r/{shortUrl}", s.handleRedirect()).Methods("GET")
-	s.Router.HandleFunc("/u/{orgUrl}", s.handleUpdateUrl()).Methods("PUT")
-	s.Router.HandleFunc("/d/{shortUrl}", s.handledeleteUrl()).Methods("DELETE")
+
+	s.Router.HandleFunc(apiVer+"/c", s.handleCreateUrl()).Methods("POST")
+	s.Router.HandleFunc(apiVer+"/r", s.handleReadUrls()).Methods("GET")
+	s.Router.HandleFunc(apiVer+"/u/{orgUrl}", s.handleUpdateUrl()).Methods("PUT")
+	s.Router.HandleFunc(apiVer+"/d/{shortUrl}", s.handledeleteUrl()).Methods("DELETE")
 }
 
 // Main Page - a list of all shortened URLS
@@ -53,6 +56,17 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 			return
 		}
 		respondWithJson(w, http.StatusCreated, newUrl)
+	}
+}
+
+func (s *Server) handleReadUrls() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		urls, err := scanUrls(s)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		respondWithJson(w, http.StatusOK, urls)
 	}
 }
 
