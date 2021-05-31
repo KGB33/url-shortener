@@ -17,10 +17,24 @@
 		Created: {{ result }}
 	</div>
     <div id="main">
-        <h1> Vue.JS API Call Example</h1>
 		<div id="urlList"></div>
-		<button type="button" id="get-urls" @click="fetchAllUrls">Get Urls</button>
-		Result:<br>{{ result }}
+		<table>
+		<thead>
+			<tr>
+				<th>Short Url</th>
+				<th>Destination Url</th>
+			</tr>
+		</tbody>
+		</thead>
+		<tbody v-for="u in urls" style="width:100%">
+  			<tr>
+				<td>{{ u.ShortUrl }}</th>
+				<td>{{ u.DestUrl }}</th>
+				<td><button type="button" id="delete-url" @click="deleteUrl(u.ShortUrl)">X</button></td>
+				<td><button type="button" id="edit-url" @click="editUrl(u.ShortUrl)">EDIT</button></td>
+			</tr>
+		</tbody>
+		</table>
     </div>
 </body>
 <!-- Vue and Custom JavaScript -->

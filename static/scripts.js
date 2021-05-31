@@ -2,8 +2,11 @@ const BASE_URL = "http://127.0.0.1:8080/api/v1"
 
 const app = new Vue({
 	el: "#main",
+	mounted:function() {
+		this.fetchAllUrls()
+	},
 	data: {
-		result: "",
+		urls: [],
 		resultAvailable: false,
 	},
 	methods: {
@@ -24,21 +27,29 @@ const app = new Vue({
 				})
 				.then(data => {
 					console.log(data);
-					this.result = data;
+					this.urls = data;
 					this.resultAvailable = true;
 				})
 				.catch(err => {
 					console.log(err);
 				});
-			}
+			},
+		deleteUrl(shortUrl) {
+			fetch(BASE_URL + `/d/${shortUrl}`, {"method": "DELETE"})
+			this.fetchAllUrls()
+			},
+		editUrl(shortUrl) {
+			alert("Editing a URL is WIP, delete and re-create in the meantime")
+			},
+
 		}
 })
 
 const createUrlBox = new Vue({
 	el: "#createBox",
 	data: {
-		shortUrl: "foo",
-		destUrl: "bar",
+		shortUrl: "",
+		destUrl: "",
 		created: false
 	},
 	methods: {
@@ -55,6 +66,7 @@ const createUrlBox = new Vue({
 					this.ShortUrl = data.ShortUrl;
 					this.DestUrl = data.DestUrl;
 					this.created = true
+					app.fetchAllUrls()
 				}
 			})
 			.catch(err => {
