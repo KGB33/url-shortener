@@ -10,9 +10,17 @@
     <title>In Russia, URL Shorten You!</title>
 </head>
 <body>
+	<div id="createBox">
+		<input v-model="shortUrl" placeholder="Short Url, Optional"/>
+		<input v-model="destUrl" placeholder="Destination Url"/>
+		<button type="button" id="createUrl" @click="createUrl">+</button>
+		Created: {{ result }}
+	</div>
     <div id="main">
         <h1> Vue.JS API Call Example</h1>
+		<div id="urlList"></div>
 		<button type="button" id="get-urls" @click="fetchAllUrls">Get Urls</button>
+		Result:<br>{{ result }}
     </div>
 </body>
 <!-- Vue and Custom JavaScript -->
