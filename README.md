@@ -29,3 +29,5 @@ go tool cover -html=coverage.out
 [How to call a REST web service API from JavaScript?](https://stackoverflow.com/questions/36975619/how-to-call-a-rest-web-service-api-from-javascript/51854096)
 
 [Consuming API's with JavaScript for Beginners](https://dev.to/gbudjeakp/consuming-api-s-with-javascript-for-beginners-13el)
+
+[Golang Gorilla mux with http.FileServer returning 404](https://stackoverflow.com/questions/21234639/golang-gorilla-mux-with-http-fileserver-returning-404)
