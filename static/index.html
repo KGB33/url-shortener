@@ -29,7 +29,7 @@
 		<tbody v-for="u in urls" style="width:100%">
   			<tr>
 				<td>{{ u.ShortUrl }}</th>
-				<td>{{ u.DestUrl }}</th>
+				<td><a v-bind:href="`${u.DestUrl}`">{{ u.DestUrl }}</a></th>
 				<td><button type="button" id="delete-url" @click="deleteUrl(u.ShortUrl)">X</button></td>
 				<td><button type="button" id="edit-url" @click="editUrl(u.ShortUrl)">EDIT</button></td>
 			</tr>
