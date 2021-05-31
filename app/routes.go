@@ -32,7 +32,7 @@ func (s *Server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		f, err := os.Open("static/index.html")
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Cannot load homepage")
+			respondWithError(w, http.StatusInternalServerError, "Cannot load homepage: "+err.Error())
 		}
 		defer f.Close()
 		io.Copy(w, f)

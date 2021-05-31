@@ -3,50 +3,26 @@ package app
 import (
 	"bytes"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/matryer/is"
 )
 
-// When `/` is requested, it should return a list of
-// all the entries in the DB, if the DB is
-// empty, then an empty list should be returned.
-func TestIndex_EmptyDB(t *testing.T) {
+// When `/` is requested, it should return the index.html file.
+// ./static/index.html
+// BUT because go test runs the code from a different CWD than main.go
+// This test should always return an internal server error
+func TestIndex(t *testing.T) {
 	clearDB()
+	is := is.New(t)
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	response := executeRequest(req)
 
-	checkResponseCode(t, http.StatusOK, response.Code)
-
+	is.Equal(http.StatusInternalServerError, response.Code)
 	body := response.Body.String()
-	if body != "[]" {
-		t.Errorf("Expected null, got: %s\n", body)
-	}
-}
-
-func TestIndex_PopulatedDB(t *testing.T) {
-	clearDB()
-	popDB()
-
-	req, _ := http.NewRequest("GET", "/", nil)
-	response := executeRequest(req)
-
-	checkResponseCode(t, http.StatusOK, response.Code)
-
-	body := response.Body.String()
-	expected := []string{
-		`{"ShortUrl":"goJson","DestUrl":"https://blog.golang.org/json"}`,
-		`{"ShortUrl":"burrito","DestUrl":"https://www.chipotle.com/"}`,
-		`{"ShortUrl":"gh","DestUrl":"https://github.com/"}`,
-	}
-	body = strings.TrimSpace(body)
-	for _, s := range expected {
-		if !strings.Contains(body, s) {
-			t.Errorf("Expected %s in response, got: %s\n", s, body)
-		}
-	}
+	exp := `{"Error":"Cannot load homepage: open static/index.html: no such file or directory"}`
+	is.Equal(exp, body)
 }
 
 func TestEndpoint_CreateUrl(t *testing.T) {
