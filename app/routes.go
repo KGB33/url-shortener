@@ -3,9 +3,11 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -13,6 +15,10 @@ import (
 const apiVer = "/api/v1"
 
 func (s *Server) initRoutes() {
+
+	s.Router.PathPrefix("/static/").Handler(
+		http.StripPrefix("/static/", http.FileServer(http.Dir("static"))),
+	)
 	s.Router.HandleFunc("/", s.handleIndex())
 	s.Router.HandleFunc("/r/{shortUrl}", s.handleRedirect()).Methods("GET")
 
@@ -22,15 +28,14 @@ func (s *Server) initRoutes() {
 	s.Router.HandleFunc(apiVer+"/d/{shortUrl}", s.handledeleteUrl()).Methods("DELETE")
 }
 
-// Main Page - a list of all shortened URLS
 func (s *Server) handleIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		urls, err := scanUrls(s)
+		f, err := os.Open("static/index.html")
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, err.Error())
-			return
+			respondWithError(w, http.StatusInternalServerError, "Cannot load homepage")
 		}
-		respondWithJson(w, http.StatusOK, urls)
+		defer f.Close()
+		io.Copy(w, f)
 	}
 }
 
