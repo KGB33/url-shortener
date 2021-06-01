@@ -90,12 +90,38 @@ func (s *Server) handleRedirect() http.HandlerFunc {
 
 func (s *Server) handleUpdateUrl() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		orgUrl := mux.Vars(r)["orgUrl"]
-		destUrl := r.URL.Query().Get("destUrl")
-		newUrl := Url{orgUrl, destUrl}
-		if err := newUrl.Update(s); err != nil {
-			log.Fatal(err)
+		orgUrlShort := mux.Vars(r)["orgUrl"]
+		reqBody, _ := ioutil.ReadAll(r.Body)
+		var newUrl, orgUrl Url
+		orgUrl.Get(orgUrlShort, s)
+		err := json.Unmarshal(reqBody, &newUrl)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err.Error())
+			return
 		}
+		if newUrl.Dest == "" {
+			respondWithError(w, http.StatusBadRequest, "Missing the Url destination field")
+			return
+		}
+		if newUrl.Short == "" {
+			newUrl.generateShort(s)
+		}
+		if orgUrl.Short == newUrl.Short {
+			if err := newUrl.Update(s); err != nil {
+				respondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			if err := orgUrl.Delete(s); err != nil {
+				orgUrl.Create(s)
+				respondWithError(w, http.StatusInternalServerError, err.Error())
+			} else {
+				if err := newUrl.Create(s); err != nil {
+					respondWithError(w, http.StatusInternalServerError, err.Error())
+				}
+			}
+
+		}
+		respondWithJson(w, http.StatusOK, newUrl)
 	}
 }
 
