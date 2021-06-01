@@ -5,17 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Stylesheet -->
-    <link href = "./styles.css" rel = "stylesheet">
+	<link href = "./static/styles.css" rel="stylesheet">
     <!-- Title -->
     <title>In Russia, URL Shorten You!</title>
 </head>
 <body>
+	<!-- Create URl -->
 	<div id="createBox">
 		<input v-model="shortUrl" placeholder="Short Url, Optional"/>
 		<input v-model="destUrl" placeholder="Destination Url"/>
 		<button type="button" id="createUrl" @click="createUrl">+</button>
-		Created: {{ result }}
 	</div>
+	<!-- View/Delete/Edit Urls -->
     <div id="main">
 		<div id="urlList"></div>
 		<table>
@@ -31,11 +32,21 @@
 				<td>{{ u.ShortUrl }}</th>
 				<td><a v-bind:href="`${u.DestUrl}`">{{ u.DestUrl }}</a></th>
 				<td><button type="button" id="delete-url" @click="deleteUrl(u.ShortUrl)">X</button></td>
-				<td><button type="button" id="edit-url" @click="editUrl(u.ShortUrl)">EDIT</button></td>
+				<td><button type="button" id="edit-url" @click="showModal(u.ShortUrl, u.DestUrl)">EDIT</button></td>
 			</tr>
 		</tbody>
 		</table>
     </div>
+	<!-- Edit Url modal -->
+	<div id="editUrl" class="modal" v-bind:style="styleObj">
+		<div class="modal-content">
+			<input v-model="shortUrl" placeholder="Short Url, Optional"/>
+			<input v-model="destUrl" placeholder="Destination Url"/>
+			<button type="button" id="submitUrlEdits" @click="submitUrlEdits()">Sumbit</button>
+			<button type="button" id="cancelUrlEdits" @click="closeModal()">Cancel</button>
+			<p>Some text in the Modal..</p>
+  		</div>
+	</div>
 </body>
 <!-- Vue and Custom JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>

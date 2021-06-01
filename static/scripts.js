@@ -38,8 +38,8 @@ const app = new Vue({
 			fetch(BASE_URL + `/d/${shortUrl}`, {"method": "DELETE"})
 			this.fetchAllUrls()
 			},
-		editUrl(shortUrl) {
-			alert("Editing a URL is WIP, delete and re-create in the meantime")
+		showModal(shortUrl, destUrl) {
+			editUrl.showModal(shortUrl, destUrl);
 			},
 
 		}
@@ -72,8 +72,55 @@ const createUrlBox = new Vue({
 			.catch(err => {
 				console.log(err);
 			});
-
+			this.shortUrl = ""
+			this.destUrl = ""
 		}
+	}
+
+})
+
+
+const editUrl = new Vue({
+	el: "#editUrl",
+	data: {
+		orgUrl: "",
+		shortUrl: "",
+		destUrl: "",
+		styleObj: {
+			display: "none",
+		},
+	},
+	methods: {
+		submitUrlEdits() {
+			fetch(BASE_URL + `/u/${this.orgUrl}`, {
+				"method": "PUT",
+				"body": `{"ShortUrl": "${this.shortUrl}", "DestUrl": "${this.destUrl}"}`
+			}).then(response => {
+				return response.json()
+			}).then(data => {
+				if(data.Error) {
+					alert("Server returned: " + data.Error);
+				} else {
+					app.fetchAllUrls()
+					this.closeModal()
+				}
+			})
+			.catch(err => {
+				console.log(err);
+			});
+
+		}, // End submit URL edits
+		showModal(orgUrl, destUrl) {
+			this.orgUrl = orgUrl
+			this.shortUrl = orgUrl
+			this.destUrl = destUrl
+			this.styleObj.display = "block"
+		}, // End show modal
+		closeModal() {
+			this.styleObj.display = "none"
+			app.fetchAllUrls()
+		} // end Close Modal
+
 	}
 
 })
