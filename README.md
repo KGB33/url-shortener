@@ -2,18 +2,19 @@
   - ~Go Tests~ (Re-write with is as needed)
   - ~Base64 Short URL~
   - ~Add base62 auto-generate to CREATE endpoint.~
-  - javascript front end
+  - ~javascript front end~
+  - Add JS/HTML edit URL modal
   - Config file
   - Docker compose for Go/Redis/JS
 
 # Testing
 ```
-go test ./app/
+go test ./...
 ```
 
 For coverage:
 ```
-go test ./app/ -coverprofile=coverage.out
+go test ./... -coverprofile=coverage.out
 go tool cover -html=coverage.out
 ```
 
