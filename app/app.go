@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -17,6 +18,7 @@ type Server struct {
 }
 
 func (s *Server) Run(port string) {
+	fmt.Println("Starting Server...")
 	defer s.DB.ShutdownSave(ctx)
 	log.Fatal(http.ListenAndServe(port, s.Router))
 }
