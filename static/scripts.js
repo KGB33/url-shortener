@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8080/api/v1"
+const BASE_URL = "/api/v1"
 
 const app = new Vue({
 	el: "#main",
