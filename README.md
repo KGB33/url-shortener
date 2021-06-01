@@ -4,7 +4,7 @@
   - ~Add base62 auto-generate to CREATE endpoint.~
   - ~javascript front end~
   - ~Add JS/HTML edit URL modal~
-  - Config file -- Changed to ENV vars
+  - ~Config file -- Changed to ENV vars~
   - Docker compose for Go/Redis/JS
 
 # Testing

@@ -14,5 +14,8 @@
 # Don't commit the DB
 *.rdb
 
+# Env vars
+.envrc
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
