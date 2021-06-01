@@ -1,3 +1,27 @@
+# Getting Started
+
+Run
+```
+git clone git@github.com:KGB33/url-shortener.git
+cd url-shortener
+docker-compose up
+```
+Then navigate to `0.0.0.0:8080` in your browser.
+
+
+# Testing
+```
+redis-server
+go test ./...
+```
+
+For coverage:
+```
+redis-server
+go test ./... -coverprofile=coverage.out
+go tool cover -html=coverage.out
+```
+
 # TODOs:
   - ~Go Tests~ (Re-write with is as needed)
   - ~Base64 Short URL~
@@ -5,18 +29,7 @@
   - ~javascript front end~
   - ~Add JS/HTML edit URL modal~
   - ~Config file -- Changed to ENV vars~
-  - Docker compose for Go/Redis/JS
-
-# Testing
-```
-go test ./...
-```
-
-For coverage:
-```
-go test ./... -coverprofile=coverage.out
-go tool cover -html=coverage.out
-```
+  - ~Docker compose for Go/Redis/JS~
 
 # Resources
 [Creating A Simple Web Server With Golang](https://tutorialedge.net/golang/creating-simple-web-server-with-golang/)
