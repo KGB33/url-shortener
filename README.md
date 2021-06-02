@@ -70,7 +70,7 @@ Response:
 
 Example Response:
 ```
-{"ShortUrl": "FU4ymyyYZnF", "DestUrl": "https://golang.org/"}
+{"ShortUrl": "FU4yMyyYZnF", "DestUrl": "https://golang.org/"}
 ```
 
 ## GET
@@ -85,7 +85,7 @@ Example Response:
 ```
 [
   {
-    "ShortUrl": "FU4ymyyYZnF",
+    "ShortUrl": "FU4yMyyYZnF",
     "DestUrl": "https://golang.org/"
   },
   {
@@ -106,7 +106,7 @@ Response:
 
 Example:
 ```
-PUT /api/v1/u/FU4ymyyYZnF
+PUT /api/v1/u/FU4yMyyYZnF
   Body: {"ShortUrl": "New Short URL", "DestUrl": "https://golang.org/"}
 
 // Response
