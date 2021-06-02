@@ -51,39 +51,38 @@ go tool cover -html=coverage.out
 
 ## Json Objects
 ### Url
-```json
-{ "ShortUrl": string, "DestUrl": string }
+```
+{ "ShortUrl": type:string, "DestUrl": type:string }
 ```
 ### Error
-```json
-{"Error": string}
+```javascript
+{"Error": type:string}
 ```
 
 ## CREATE
-```json
-Endpoint: /api/v1/c
-  Method: POST
-	Body: Url
+Endpoint: `/api/v1/c`
+  - Method: POST
+  - Body: Url
 
 Response:
-	On Success: 201, Url
-	On Fail   : 500 or 400, Error
+  - On Success: 201, Url
+  - On Fail   : 500 or 400, Error
 
 Example Response:
+```
 {"ShortUrl": "FU4ymyyYZnF", "DestUrl": "https://golang.org/"}
 ```
 
 ## GET
-
-```json
-Endpoint: /api/v1/r
-  Method: GET
+Endpoint: `/api/v1/r`
+  - Method: GET
 
 Response:
-	On Success: 200, array[Url]
-	On Fail   : 500, {"Error": string}
+  - On Success: 200, array[Url]
+  - On Fail   : 500, {"Error": string}
 
 Example Response:
+```
 [
   {
     "ShortUrl": "FU4ymyyYZnF",
@@ -97,30 +96,26 @@ Example Response:
 ```
 
 # UPDATE
-```json
-Endpoint: /api/v1/u/<ShortUrl>
-  Method: PUT
-	Body: Url
+Endpoint: `/api/v1/u/<ShortUrl>`
+  - Method: PUT
+  - Body: Url
 
 Response:
-	On Success: 201, Url
-	On Fail   : 500 or 400, Error
+  - On Success: 201, Url
+  - On Fail   : 500 or 400, Error
 
 Example:
-
+```
 PUT /api/v1/u/FU4ymyyYZnF
-	Body: {"ShortUrl": "New Short URL", "DestUrl": "https://golang.org/"}
+  Body: {"ShortUrl": "New Short URL", "DestUrl": "https://golang.org/"}
 
-Response:
+// Response
 {"ShortUrl": "New Short URL", "DestUrl": "https://golang.org/"}
 ```
 
 ## DELETE
-```json
-Endpoint: /api/v1/d/<ShortUrl>
-  Method: DELETE
-```
-
+Endpoint: `/api/v1/d/<ShortUrl>`
+  - Method: DELETE
 
 # Resources
 [Creating A Simple Web Server With Golang](https://tutorialedge.net/golang/creating-simple-web-server-with-golang/)
