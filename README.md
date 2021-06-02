@@ -1,6 +1,4 @@
-# Getting Started
-
-Run
+# :zap: Quickstart
 ```
 git clone git@github.com:KGB33/url-shortener.git
 cd url-shortener
@@ -8,28 +6,46 @@ docker-compose up
 ```
 Then navigate to `0.0.0.0:8080` in your browser.
 
+# Features
+  - RestAPI
+  - Vue.js baised front-end.
+  - Unit & Integration tests
+  - Optional auto-generated Base64 Shortend URL
+  - Easy to spin up using Docker Compose
+
+
+# :turtle: SlowStart
+
+Requirments
+  - Go
+  - Git
+  - Redis
+
+```
+export DATABASE_URL="127.0.0.1:6379"
+export DATABASE_PASS=""
+export DATABASE_ID="0"
+export PORT=":8080"
+git clone git@github.com:KGB33/url-shortener.git
+cd url-shortener
+redis-server --daemonize yes
+go run .
+```
+
+Then navigate to `127.0.0.1$PORT` in your browser.
 
 # Testing
+Run the following commands from the top-level directory of this repository.
+Also, ensure that redis is running.
+
 ```
-redis-server
 go test ./...
 ```
-
-For coverage:
+Or, if you want coverage:
 ```
-redis-server
 go test ./... -coverprofile=coverage.out
 go tool cover -html=coverage.out
 ```
-
-# TODOs:
-  - ~Go Tests~ (Re-write with is as needed)
-  - ~Base64 Short URL~
-  - ~Add base62 auto-generate to CREATE endpoint.~
-  - ~javascript front end~
-  - ~Add JS/HTML edit URL modal~
-  - ~Config file -- Changed to ENV vars~
-  - ~Docker compose for Go/Redis/JS~
 
 # Resources
 [Creating A Simple Web Server With Golang](https://tutorialedge.net/golang/creating-simple-web-server-with-golang/)
