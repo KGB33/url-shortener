@@ -1,4 +1,4 @@
-# :zap: Quickstart
+# :zap: QuickStart
 ```
 git clone git@github.com:KGB33/url-shortener.git
 cd url-shortener
@@ -8,15 +8,15 @@ Then navigate to `0.0.0.0:8080` in your browser.
 
 # Features
   - RestAPI
-  - Vue.js baised front-end.
+  - Vue.js biased front-end.
   - Unit & Integration tests
-  - Optional auto-generated Base64 Shortend URL
+  - Optional auto-generated Base64 Shortened URL
   - Easy to spin up using Docker Compose
 
 
 # :turtle: SlowStart
 
-Requirments
+Requirements
   - Go
   - Git
   - Redis
@@ -46,6 +46,81 @@ Or, if you want coverage:
 go test ./... -coverprofile=coverage.out
 go tool cover -html=coverage.out
 ```
+
+# API Reference
+
+## Json Objects
+### Url
+```json
+{ "ShortUrl": string, "DestUrl": string }
+```
+### Error
+```json
+{"Error": string}
+```
+
+## CREATE
+```json
+Endpoint: /api/v1/c
+  Method: POST
+	Body: Url
+
+Response:
+	On Success: 201, Url
+	On Fail   : 500 or 400, Error
+
+Example Response:
+{"ShortUrl": "FU4ymyyYZnF", "DestUrl": "https://golang.org/"}
+```
+
+## GET
+
+```json
+Endpoint: /api/v1/r
+  Method: GET
+
+Response:
+	On Success: 200, array[Url]
+	On Fail   : 500, {"Error": string}
+
+Example Response:
+[
+  {
+    "ShortUrl": "FU4ymyyYZnF",
+    "DestUrl": "https://golang.org/"
+  },
+  {
+    "ShortUrl": "source",
+    "DestUrl": "https://github.com/KGB33/url-shortener"
+  }
+]
+```
+
+# UPDATE
+```json
+Endpoint: /api/v1/u/<ShortUrl>
+  Method: PUT
+	Body: Url
+
+Response:
+	On Success: 201, Url
+	On Fail   : 500 or 400, Error
+
+Example:
+
+PUT /api/v1/u/FU4ymyyYZnF
+	Body: {"ShortUrl": "New Short URL", "DestUrl": "https://golang.org/"}
+
+Response:
+{"ShortUrl": "New Short URL", "DestUrl": "https://golang.org/"}
+```
+
+## DELETE
+```json
+Endpoint: /api/v1/d/<ShortUrl>
+  Method: DELETE
+```
+
 
 # Resources
 [Creating A Simple Web Server With Golang](https://tutorialedge.net/golang/creating-simple-web-server-with-golang/)
