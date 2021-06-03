@@ -47,9 +47,3 @@ func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 	return rr
 
 }
-
-func checkResponseCode(t *testing.T, expected, actual int) {
-	if expected != actual {
-		t.Errorf("Expected: %d -- Got %d\n", expected, actual)
-	}
-}
