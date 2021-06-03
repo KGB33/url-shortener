@@ -3,8 +3,8 @@
   - Identify and handle errors by their type, not just if they exist.
 [GopherCon 2020: Jonathan Amsterdam - Working with Errors](https://www.youtube.com/watch?v=IKoSsJFdRtI&list=PL2ntRZ1ySWBfUint2hCE1JRxRWChloasB&index=1)
 
-# Set up golangci-lint
-  - On-pre-commit
+# ~Set up golangci-lint~
+  - ~On-pre-commit~
 
 # Add GH action to build/Publish container to Github container repository
   - Create release branch
