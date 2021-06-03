@@ -3,11 +3,11 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -33,9 +33,10 @@ func (s *Server) handleIndex() http.HandlerFunc {
 		f, err := os.Open("static/index.html")
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Cannot load homepage: "+err.Error())
+			return
 		}
 		defer f.Close()
-		io.Copy(w, f)
+		http.ServeContent(w, r, "index.html", time.Time{}, f)
 	}
 }
 
@@ -93,7 +94,14 @@ func (s *Server) handleUpdateUrl() http.HandlerFunc {
 		orgUrlShort := mux.Vars(r)["orgUrl"]
 		reqBody, _ := ioutil.ReadAll(r.Body)
 		var newUrl, orgUrl Url
-		orgUrl.Get(orgUrlShort, s)
+		if err := orgUrl.Get(orgUrlShort, s); err != nil {
+			respondWithError(
+				w,
+				http.StatusNotFound,
+				"There was no object found for the shortUrl you provided",
+			)
+			return
+		}
 		err := json.Unmarshal(reqBody, &newUrl)
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err.Error())
@@ -112,7 +120,7 @@ func (s *Server) handleUpdateUrl() http.HandlerFunc {
 			}
 		} else {
 			if err := orgUrl.Delete(s); err != nil {
-				orgUrl.Create(s)
+				_ = orgUrl.Create(s) // Ignore the error
 				respondWithError(w, http.StatusInternalServerError, err.Error())
 			} else {
 				if err := newUrl.Create(s); err != nil {
@@ -140,7 +148,9 @@ func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(response)
+	if _, err := w.Write(response); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error when sending response")
+	}
 }
 
 // Packs an error message into a json Object.

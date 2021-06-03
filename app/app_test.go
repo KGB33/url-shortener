@@ -36,7 +36,9 @@ func clearDB() {
 
 func popDB() {
 	for _, u := range urls {
-		u.Create(s)
+		if err := u.Create(s); err != nil {
+			log.Fatalf("Failure while populating the database: %s", err)
+		}
 	}
 }
 

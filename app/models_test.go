@@ -46,7 +46,9 @@ func TestUrl_Create(t *testing.T) {
 		t.Errorf("Error when creating URL: %s", err)
 	}
 
-	urlBlank.Get("short", s)
+	if err := urlBlank.Get("short", s); err != nil {
+		t.Errorf("Error when retreaving URL from db: %s", err)
+	}
 	if url != urlBlank {
 		t.Errorf("Url Insterted or retreaved incorrectly.")
 	}
