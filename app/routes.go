@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -138,7 +137,7 @@ func (s *Server) handledeleteUrl() http.HandlerFunc {
 		shortUrl := mux.Vars(r)["shortUrl"]
 		url := Url{shortUrl, ""}
 		if err := url.Delete(s); err != nil {
-			log.Fatal(err)
+			respondWithError(w, http.StatusNotFound, err.Error())
 		}
 	}
 }
