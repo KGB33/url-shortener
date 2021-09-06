@@ -6,7 +6,7 @@ A RESTful API and a Vue.js front end to shorten your URLs with.
 
 ## Features
   - RESTful API
-  - Vue.js biased front-end.
+  - Vue.js based front-end.
   - Unit & Integration tests
   - Optional auto-generated Base64 Shortened URL
   - Easy to spin up using Docker Compose
