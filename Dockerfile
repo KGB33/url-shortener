@@ -6,7 +6,7 @@ WORKDIR /build
 
 COPY . .
 
-run go build -o /server
+RUN go build -o /server
 
 FROM debian:latest
 
